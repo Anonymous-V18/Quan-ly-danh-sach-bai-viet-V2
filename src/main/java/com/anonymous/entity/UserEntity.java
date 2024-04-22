@@ -1,31 +1,31 @@
 package com.anonymous.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserEntity extends BaseEntity {
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String userName;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Column(name = "status", nullable = false)
-    private Integer status;
+    String userName;
+    String password;
+    Integer status;
 
     @ManyToMany
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false))
-    private List<RoleEntity> roles = new ArrayList<>();
+    @ToString.Exclude
+    Set<RoleEntity> roles = new HashSet<>();
 
 }

@@ -1,29 +1,29 @@
 package com.anonymous.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
+
 
 @Entity
 @Table(name = "new")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewsEntity extends BaseEntity {
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "thumbnail")
-    private String thumbnail;
-
-    @Column(name = "shortdescription")
-    private String shortDescription;
-
-    @Column(name = "content")
-    private String content;
+    String title;
+    String thumbnail;
+    String shortDescription;
+    String content;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private CategoryEntity category;
+    CategoryEntity category;
 
 }

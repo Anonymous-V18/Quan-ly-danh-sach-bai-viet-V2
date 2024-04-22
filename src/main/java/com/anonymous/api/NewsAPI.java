@@ -1,10 +1,11 @@
 package com.anonymous.api;
 
-import com.anonymous.api.output.NewsOutput;
 import com.anonymous.dto.NewsDTO;
+import com.anonymous.dto.response.NewsOutput;
 import com.anonymous.service.IFileService;
 import com.anonymous.service.INewsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +17,7 @@ import java.io.IOException;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api")
+@Slf4j
 public class NewsAPI {
 
     @Autowired
@@ -27,7 +28,7 @@ public class NewsAPI {
 
 
     @GetMapping("/news")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public NewsOutput getNews(@RequestParam("page") Integer page,
                               @RequestParam("limit") Integer limit) {
         NewsOutput newsOutput = new NewsOutput();
@@ -43,7 +44,7 @@ public class NewsAPI {
     }
 
     @PostMapping("/news")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public NewsDTO insert(@RequestParam("newsTextDTO") String newsTextDTO,
                           @RequestParam("file") MultipartFile file)
             throws IOException {
@@ -62,9 +63,9 @@ public class NewsAPI {
         ObjectMapper objectMapper = new ObjectMapper();
         NewsDTO newsDTO = objectMapper.readValue(newsTextDTO, NewsDTO.class);
         if (!file.isEmpty()) {
-            String OldThumbnailUrl = newsDTO.getThumbnail();
-            if (!OldThumbnailUrl.isBlank()) {
-                String publicId = fileService.filterUrlToGetPublicId(OldThumbnailUrl);
+            String oldThumbnailUrl = newsDTO.getThumbnail();
+            if (!oldThumbnailUrl.isBlank()) {
+                String publicId = fileService.filterUrlToGetPublicId(oldThumbnailUrl);
                 fileService.delete(publicId);
             }
             String thumbnailUrl = fileService.upload(file);
@@ -79,5 +80,6 @@ public class NewsAPI {
     public void delete(@RequestBody Long[] id) {
         newsService.Delete(id);
     }
+
 
 }

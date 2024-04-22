@@ -1,18 +1,22 @@
 package com.anonymous.dto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDTO extends AbstractDTO<UserDTO> {
-    private String userName;
-    private String password;
-    private Integer status;
-    private List<RoleDTO> roles = new ArrayList<>();
+
+    String userName;
+    String password;
+    Integer status;
+    Set<RoleDTO> roles = new HashSet<>();
 
 
 }

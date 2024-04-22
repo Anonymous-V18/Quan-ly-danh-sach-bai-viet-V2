@@ -2,7 +2,6 @@ package com.anonymous.service.impl;
 
 import com.anonymous.service.IFileService;
 import com.cloudinary.Cloudinary;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +10,6 @@ import java.io.IOException;
 import java.util.Map;
 
 @Service
-@Data
 public class FileService implements IFileService {
 
     @Autowired
@@ -48,7 +46,7 @@ public class FileService implements IFileService {
     @Override
     public String filterUrlToGetPublicId(String url) {
         int fileNameStart = url.lastIndexOf("/") + 1;
-        int fileNameEnd = url.lastIndexOf(".png");
+        int fileNameEnd = url.lastIndexOf(".");
         return url.substring(fileNameStart, fileNameEnd);
     }
 

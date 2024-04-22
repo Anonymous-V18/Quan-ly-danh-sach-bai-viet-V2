@@ -1,4 +1,4 @@
-package com.anonymous.api.output;
+package com.anonymous.dto.response;
 
 import com.anonymous.dto.NewsDTO;
 import lombok.Getter;

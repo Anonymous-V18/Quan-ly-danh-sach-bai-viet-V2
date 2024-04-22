@@ -1,7 +1,10 @@
 package com.anonymous.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -12,22 +15,21 @@ import java.util.Date;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "createdby")
+    Long id;
     @CreatedBy
-    private String createdBy;
-    @Column(name = "createddate")
+    String createdBy;
     @CreatedDate
-    private Date createdDate;
-    @Column(name = "modifiedby")
+    Date createdDate;
     @LastModifiedBy
-    private String modifiedBy;
-    @Column(name = "modifieddate")
+    String modifiedBy;
     @LastModifiedDate
-    private Date modifiedDate;
+    Date modifiedDate;
 
 }

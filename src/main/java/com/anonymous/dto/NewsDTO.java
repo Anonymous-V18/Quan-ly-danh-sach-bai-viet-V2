@@ -1,15 +1,19 @@
 package com.anonymous.dto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewsDTO extends AbstractDTO<NewsDTO> {
-    private String title;
-    private String content;
-    private String shortDescription;
-    private String categoryCode;
-    private String thumbnail;
+
+    String title;
+    String content;
+    String shortDescription;
+    String categoryCode;
+    String thumbnail;
 
 }

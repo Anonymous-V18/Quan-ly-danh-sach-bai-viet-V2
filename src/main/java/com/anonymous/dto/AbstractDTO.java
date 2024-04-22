@@ -1,7 +1,9 @@
 package com.anonymous.dto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,12 +11,14 @@ import java.util.List;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class AbstractDTO<T> {
-    private Long id;
-    private String createdBy;
-    private Date createdDate;
-    private String modifiedBy;
-    private Date modifiedDate;
-    private List<T> listResult = new ArrayList<>();
+
+    Long id;
+    String createdBy;
+    Date createdDate;
+    String modifiedBy;
+    Date modifiedDate;
+    List<T> listResult = new ArrayList<>();
 
 }

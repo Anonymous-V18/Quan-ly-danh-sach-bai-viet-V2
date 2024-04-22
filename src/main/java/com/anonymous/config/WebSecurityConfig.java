@@ -1,47 +1,34 @@
 package com.anonymous.config;
 
-import com.anonymous.filters.JwtRequestFilter;
-import com.anonymous.repository.UserRepository;
-import com.anonymous.service.impl.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.*;
+import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    @Autowired
-    private JwtRequestFilter requestFilter;
-    @Autowired
-    private UserRepository userRepository;
+    public final String[] PUBLIC_ENDPOINT = {"/users/register", "/admin/register", "/login", "/introspect"};
 
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService();
-    }
+    @Value("${jwt.SECRET_KEY}")
+    private String SECRET;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,39 +36,39 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/users/register",
-                                "/admin/register",
-                                "/login"
-                        ).permitAll()
-                        .requestMatchers("/api**").permitAll()
-                        .anyRequest()
-                        .authenticated()
-                );
-        http.sessionManagement(s -> s.sessionCreationPolicy(STATELESS));
-        http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
-        http.logout(logout -> logout
-                .logoutUrl("/logout")
-                .addLogoutHandler(new HeaderWriterLogoutHandler(
-                        new ClearSiteDataHeaderWriter(COOKIES, CACHE, STORAGE)))
-                .logoutSuccessUrl("/login?logout")
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
+                .anyRequest().authenticated()
+        );
+        http.oauth2ResourceServer(oauth2 ->
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(getJwtDecoder())
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+        );
+        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         return http.build();
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public JwtDecoder getJwtDecoder() {
+        SecretKeySpec jwtSecretKeySpec = new SecretKeySpec(SECRET.getBytes(), "HS512");
+        return NimbusJwtDecoder
+                .withSecretKey(jwtSecretKeySpec)
+                .macAlgorithm(MacAlgorithm.HS512)
+                .build();
     }
 }

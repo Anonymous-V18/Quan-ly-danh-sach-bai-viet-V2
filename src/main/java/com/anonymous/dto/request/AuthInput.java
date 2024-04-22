@@ -1,4 +1,4 @@
-package com.anonymous.api.input;
+package com.anonymous.dto.request;
 
 import lombok.Getter;
 
