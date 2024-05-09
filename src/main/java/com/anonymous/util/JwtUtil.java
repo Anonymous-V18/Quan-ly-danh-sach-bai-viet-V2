@@ -21,7 +21,7 @@ import java.util.UUID;
 public class JwtUtil {
 
     @Value("${jwt.SECRET_KEY}")
-    private String SECRET;
+    private String secretKey;
 
 
     public String generateToken(UserEntity userEntity) {
@@ -41,7 +41,7 @@ public class JwtUtil {
         JWSObject jwsObject = new JWSObject(header, payload);
 
         try {
-            jwsObject.sign(new MACSigner(SECRET.getBytes()));
+            jwsObject.sign(new MACSigner(secretKey.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
             throw new RuntimeException(e);
@@ -63,7 +63,7 @@ public class JwtUtil {
     }
 
     public Boolean isTokenValid(SignedJWT signedJWT) throws JOSEException {
-        JWSVerifier verifier = new MACVerifier(SECRET.getBytes());
+        JWSVerifier verifier = new MACVerifier(secretKey.getBytes());
         return signedJWT.verify(verifier);
     }
 

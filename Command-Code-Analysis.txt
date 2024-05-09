@@ -1,0 +1,4 @@
+#Jacoco Report
+mvn test jacoco:report
+#Sona-Qube Scans
+mvn clean verify sonar:sonar -Dsonar.projectKey=com.anonymous.news -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_99b6fa4a6b0b4d6c8fd6be2d19265ea90c821102

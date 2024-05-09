@@ -3,12 +3,9 @@ package com.anonymous.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-
 @Data
 @AllArgsConstructor
-public class AuthOutput {
+public class IntrospectOutput {
 
-    private String accessToken;
-    private String refreshToken;
-
+    private Boolean authenticated;
 }

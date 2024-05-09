@@ -8,7 +8,8 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleDTO extends AbstractDTO<RoleDTO> {
+public class RoleDTO extends AbstractDTO {
+
     String name;
     String code;
 

@@ -1,7 +1,8 @@
 package com.anonymous.service.impl;
 
-import com.anonymous.converter.UserConverter;
 import com.anonymous.entity.UserEntity;
+import com.anonymous.exception.AppException;
+import com.anonymous.exception.ErrorCode;
 import com.anonymous.repository.IUserRepository;
 import com.anonymous.service.IAuthService;
 import com.anonymous.util.JwtUtil;
@@ -17,17 +18,16 @@ import org.springframework.stereotype.Service;
 public class AuthService implements IAuthService {
 
 
-    IUserRepository IUserRepository;
+    IUserRepository userRepository;
     PasswordEncoder passwordEncoder;
-    UserConverter userConverter;
     JwtUtil jwtUtil;
 
 
     @Override
     public String authentication(String username, String password) {
-        UserEntity user = IUserRepository.findOneByUserNameAndStatus(username, 1);
+        UserEntity user = userRepository.findOneByUserNameAndStatus(username, 1);
         if (user == null) {
-            throw new RuntimeException("Could not find user !");
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
         return passwordEncoder.matches(password, user.getPassword()) ? jwtUtil.generateToken(user) : null;
     }

@@ -1,35 +1,42 @@
 package com.anonymous.api;
 
 import com.anonymous.dto.request.AuthInput;
+import com.anonymous.dto.response.ApiResponse;
+import com.anonymous.dto.response.AuthOutput;
+import com.anonymous.dto.response.IntrospectOutput;
 import com.anonymous.service.IAuthService;
 import com.anonymous.util.JwtUtil;
 import com.nimbusds.jose.JOSEException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthAPI {
 
-    @Autowired
-    private IAuthService authService;
-    @Autowired
-    private JwtUtil jwtUtil;
+    IAuthService authService;
+    JwtUtil jwtUtil;
 
 
     @PostMapping("/login")
-    public String createAuthenticationToken(@RequestBody AuthInput authInput) {
-        return authService.authentication(authInput.getUsername(), authInput.getPassword());
+    public ApiResponse<AuthOutput> createAuthenticationToken(@RequestBody AuthInput authInput) {
+        String accessToken = authService.authentication(authInput.getUsername(), authInput.getPassword());
+        AuthOutput response = new AuthOutput(accessToken, accessToken);
+        return ApiResponse.<AuthOutput>builder().result(response).build();
     }
 
     @PostMapping("/introspect")
-    public ResponseEntity<?> authentication(@RequestParam("token") String token) throws ParseException, JOSEException {
+    public ApiResponse<IntrospectOutput> authentication(@RequestParam("token") String token)
+            throws ParseException, JOSEException {
         Boolean isValid = jwtUtil.introspectToken(token);
-        return new ResponseEntity<>(isValid, HttpStatus.OK);
+        IntrospectOutput response = new IntrospectOutput(isValid);
+        return ApiResponse.<IntrospectOutput>builder().result(response).build();
     }
 
 }

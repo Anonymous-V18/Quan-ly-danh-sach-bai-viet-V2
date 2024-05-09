@@ -5,6 +5,8 @@ import com.anonymous.dto.UserDTO;
 import com.anonymous.dto.request.SignupInput;
 import com.anonymous.entity.RoleEntity;
 import com.anonymous.entity.UserEntity;
+import com.anonymous.exception.AppException;
+import com.anonymous.exception.ErrorCode;
 import com.anonymous.repository.IRoleRepository;
 import com.anonymous.repository.IUserRepository;
 import com.anonymous.service.IUserService;
@@ -36,7 +38,9 @@ public class UserService implements IUserService {
     public UserDTO createUser(SignupInput signupInput) {
 
         UserEntity checkUserNameExist = userRepository.findOneByUserNameAndStatus(signupInput.getUsername(), 1);
-        if (checkUserNameExist != null) return null;
+        if (checkUserNameExist != null) {
+            throw new AppException(ErrorCode.USER_EXIST);
+        }
 
         UserDTO userDTO = new UserDTO();
         userDTO.setUserName(signupInput.getUsername());

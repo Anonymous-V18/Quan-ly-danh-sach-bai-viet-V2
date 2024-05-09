@@ -9,12 +9,12 @@ public interface INewsService {
 
     NewsDTO save(NewsDTO newsDTO);
 
-    void Delete(Long[] Ids);
+    void delete(Long[] ids);
 
     List<NewsDTO> findALL();
 
     List<NewsDTO> findALL(Pageable pageable);
 
     int totalItems();
-    
+
 }

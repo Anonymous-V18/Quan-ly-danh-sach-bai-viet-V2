@@ -13,7 +13,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,30 +41,18 @@ public class NewsService implements INewsService {
     }
 
     @Override
-    public void Delete(Long[] Ids) {
-        newsRepository.deleteAllById(Arrays.stream(Ids).toList());
+    public void delete(Long[] ids) {
+        newsRepository.deleteAllById(Arrays.stream(ids).toList());
     }
 
     @Override
     public List<NewsDTO> findALL() {
-        List<NewsDTO> newsDTOList = new ArrayList<>();
-        List<NewsEntity> newsEntityList = newsRepository.findAll();
-        for (NewsEntity newsEntity : newsEntityList) {
-            NewsDTO newsDTO = newsConverter.toDTO(newsEntity);
-            newsDTOList.add(newsDTO);
-        }
-        return newsDTOList;
+        return newsRepository.findAll().stream().map(newsConverter::toDTO).toList();
     }
 
     @Override
     public List<NewsDTO> findALL(Pageable pageable) {
-        List<NewsDTO> newsDTOList = new ArrayList<>();
-        List<NewsEntity> newsEntityList = newsRepository.findAll(pageable).getContent();
-        for (NewsEntity newsEntity : newsEntityList) {
-            NewsDTO newsDTO = newsConverter.toDTO(newsEntity);
-            newsDTOList.add(newsDTO);
-        }
-        return newsDTOList;
+        return newsRepository.findAll(pageable).getContent().stream().map(newsConverter::toDTO).toList();
     }
 
     @Override

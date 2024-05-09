@@ -25,10 +25,10 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    public final String[] PUBLIC_ENDPOINT = {"/users/register", "/admin/register", "/login", "/introspect"};
+    private static final String[] PUBLIC_ENDPOINT = {"/users/register", "/admin/register", "/login", "/introspect"};
 
     @Value("${jwt.SECRET_KEY}")
-    private String SECRET;
+    private String secretKey;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,10 +42,11 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                 .anyRequest().authenticated()
         );
-        http.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(getJwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(getJwtDecoder())
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
         http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -65,7 +66,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtDecoder getJwtDecoder() {
-        SecretKeySpec jwtSecretKeySpec = new SecretKeySpec(SECRET.getBytes(), "HS512");
+        SecretKeySpec jwtSecretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HS512");
         return NimbusJwtDecoder
                 .withSecretKey(jwtSecretKeySpec)
                 .macAlgorithm(MacAlgorithm.HS512)

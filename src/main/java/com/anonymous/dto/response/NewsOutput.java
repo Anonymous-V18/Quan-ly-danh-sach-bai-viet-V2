@@ -1,18 +1,16 @@
 package com.anonymous.dto.response;
 
 import com.anonymous.dto.NewsDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class NewsOutput {
 
     private Integer page;
     private Integer totalPages;
-    List<NewsDTO> newsDtoList = new ArrayList<>();
+    private List<NewsDTO> newsDtoList = new ArrayList<>();
 
 }
